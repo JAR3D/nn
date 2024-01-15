@@ -1,0 +1,105 @@
+<DOCTYPE html>
+    <html>
+
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <meta charset="utf-8" />
+        <title>Data Creator</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+
+    <body>
+        <div id="content">
+            <h1>Data Creator</h1>
+            <div>
+                <input id="student" type="text" placeholder="Student Name" />
+                <span id="instructions"></span>
+                <button id="advanceBtn" onclick="start()">Start</button>
+            </div>
+            <br>
+            <div id="sketchPadContainer" style="visibility: hidden;"></div>
+        </div>
+
+        <script src="js/draw.js"></script>
+        <script src="js/sketchPad.js"></script>
+
+        <script>
+
+
+
+
+
+
+
+            let index = 0;
+            const labels = ['car', 'fish', 'house', 'tree', 'bicycle', 'guitar', 'pencil', 'clock'];
+
+
+            const data = {
+                student: null,
+                session: new Date().getTime(),
+                drawings: {}
+            }
+
+            const skecthPad = new SketchPad(sketchPadContainer);
+
+            function start() {
+                if (student.value === '') {
+                    alert('Please enter a student name');
+                    return;
+                }
+                data.student = student.value;
+                student.style.display = 'none';
+
+                sketchPadContainer.style.visibility = 'visible';
+
+                instructions.innerHTML = 'Draw a ' + labels[index];
+
+                advanceBtn.innerHTML = 'Next';
+                advanceBtn.onclick = next;
+            }
+
+            function next() {
+                const skecthPadContainer = document.getElementById('sketchPadContainer');
+
+                if (skecthPad.paths.length === 0) {
+                    alert('Please draw something');
+                    return;
+                }
+
+                data.drawings[labels[index]] = skecthPad.paths; 
+
+                skecthPad.reset();
+
+                index++;
+
+                if (index < labels.length) {
+                    instructions.innerHTML = 'Draw a ' + labels[index];
+                } else {
+                    skecthPadContainer.style.visibility = 'hidden';
+                    advanceBtn.innerHTML = 'Finish';
+                    advanceBtn.onclick = finish;
+                    instructions.innerHTML = 'Click finish to save data';
+                }
+            }
+
+            function finish() {
+                advanceBtn.style.display = 'none';
+                instructions.innerHTML = 'Saving data...';
+
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data)));
+
+                const fileName = data.session + '.json';
+                element.setAttribute('download', fileName);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
+
+        </script>
+    </body>
+
+    </html>
